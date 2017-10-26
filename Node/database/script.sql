@@ -3,7 +3,8 @@ CREATE TABLE User(
     name TEXT NOT NULL,
     password TEXT NOT NULL,
     NIF TEXT NOT NULL,
-    address TEXT NOT NULL
+    address TEXT NOT NULL,
+    publicKey TEXT NOT NULL
 );
 
 CREATE Table CreditCard(
