@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Acme-Electronics-Shop</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_address">Address</string>
+    <string name="hint_gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="btn_sign_up">Register</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+</resources>

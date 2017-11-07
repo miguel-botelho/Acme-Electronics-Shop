@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:background="#ffffff"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/LinearLayoutHeader"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/TextViewProductTitle"
+            android:layout_gravity="center"
+            android:layout_margin="5dip"
+            android:textSize="30dip"
+            android:text="Product Name"
+            android:textColor="#000000"></TextView>
+
+    </LinearLayout>
+    <TextView
+        android:layout_height="wrap_content"
+        android:id="@+id/TextViewBrandDetails"
+        android:layout_width="fill_parent"
+        android:layout_margin="20dip"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:text="Brand: Product brand">
+    </TextView>
+    <TextView
+        android:layout_height="wrap_content"
+        android:id="@+id/TextViewModelDetails"
+        android:layout_width="fill_parent"
+        android:layout_margin="20dip"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:text="Model: Product model">
+    </TextView>
+    <TextView
+        android:layout_height="wrap_content"
+        android:id="@+id/TextViewProductDetails"
+        android:layout_width="fill_parent"
+        android:layout_margin="20dip"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:text="Description: Product description">
+    </TextView>
+    <TextView
+        android:layout_height="wrap_content"
+        android:id="@+id/TextViewPriceDetails"
+        android:layout_width="fill_parent"
+        android:layout_margin="20dip"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:text="Price: Product price">
+    </TextView>
+    <Button
+        android:id="@+id/btn_add_to_cart"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/login_button_background"
+        android:text="Add To Cart"
+        android:textColor="@android:color/white" />
+</LinearLayout>
