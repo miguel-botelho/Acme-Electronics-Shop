@@ -1,5 +1,6 @@
 CREATE TABLE User(
-    email TEXT PRIMARY KEY,
+    idUser INTEGER PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     password TEXT NOT NULL,
     NIF TEXT NOT NULL,
@@ -12,9 +13,8 @@ CREATE Table CreditCard(
     type TEXT NOT NULL,
     number TEXT NOT NULL,
     validity DATE NOT NULL,
-    email TEXT REFERENCES User(email)
+    idUser INTEGER REFERENCES User(idUser)
 );
-
 
 CREATE TABLE Product(
     idProduct INTEGER PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE Product(
 
 CREATE TABLE Cart(
     idCart INTEGER PRIMARY KEY,
-    email TEXT REFERENCES User(email)
+    idUser INTEGER REFERENCES User(idUser)
 );
 
 CREATE TABLE CartItem(
@@ -38,7 +38,8 @@ CREATE TABLE CartItem(
 
 CREATE TABLE Orders(
     idOrder TEXT PRIMARY KEY,
-    email TEXT REFERENCES User(email)
+    day DATE NOT NULL,
+    idUser INTEGER REFERENCES User(idUser)
 );
 
 CREATE TABLE OrderItem(
@@ -47,3 +48,8 @@ CREATE TABLE OrderItem(
     idProduct INTEGER REFERENCES Product(idProduct),
     idOrder TEXT REFERENCES Orders(idOrder)
 );
+
+INSERT INTO User (email, name, password, NIF, address, publicKey) VALUES('jmbotelho95@gmail.com', 'Miguel Botelho', 'teste', '999999990', 'Rua Teste', 'chave');
+INSERT INTO Product (maker, model, price, description) VALUES ('teste', 'teste', 99, 'teste');
+INSERT INTO Cart (idUser) VALUES (1);
+INSERT INTO CartItem (quantity, idProduct, idCart) VALUES (10, 1, 1);
