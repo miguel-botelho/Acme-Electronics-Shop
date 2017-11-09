@@ -21,8 +21,8 @@ router.post('/register', function(req, res) {
 	const email = req.body.email;
 	const name = req.body.name;
 	const password = req.body.password;
-	const NIF = req.body.password;
-	const address = req.body.password;
+	const NIF = req.body.nif;
+	const address = req.body.address;
 	const publicKey = req.body.publicKey; // public key of the client
 	const typeCreditCard = req.body.type;
 	const numberCreditCard = req.body.number;
