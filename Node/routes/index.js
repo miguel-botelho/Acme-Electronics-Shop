@@ -17,7 +17,6 @@ const db = new sqlite3.Database('database/database.db');
 // -> Consult product info given product ID product.js
 
 router.post('/register', function(req, res) {
-	console.log(req.body);
 	const email = req.body.email;
 	const name = req.body.name;
 	const password = req.body.password;
@@ -33,11 +32,11 @@ router.post('/register', function(req, res) {
 		stmt = db.prepare('SELECT * FROM User WHERE email = ?');
 		stmt.get(email, (err, user) => {
 			console.log(user);
-			stmt = db.prepare('INSERT INTO CreditCard (type, number, validity, idUser) VALUES (?, ?, ?, ?');
+			stmt = db.prepare('INSERT INTO CreditCard (type, number, validity, idUser) VALUES (?, ?, ?, ?)');
 			stmt.get([typeCreditCard, numberCreditCard, validityCreditCard, user.idUser], (err, row) => {
 				// check row response
 				console.log(row);
-				res.send('User registred successfully');
+				res.json('User registred successfully');
 			});
 		});
 	});

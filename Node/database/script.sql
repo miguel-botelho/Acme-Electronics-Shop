@@ -12,7 +12,7 @@ CREATE Table CreditCard(
     idCreditCard INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
     number TEXT NOT NULL,
-    validity DATE NOT NULL,
+    validity TEXT NOT NULL,
     idUser INTEGER REFERENCES User(idUser)
 );
 

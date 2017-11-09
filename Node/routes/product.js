@@ -7,10 +7,11 @@ const db = new sqlite3.Database('database/database.db');
 router.get('/:id', function (req, res) {
 	const stmt = db.prepare('SELECT * FROM Product WHERE idProduct = ?');
 	stmt.get(req.params.id, (err, rows) => {
-		if (rows.length > 0) {
-			res.send(rows); // id is valid
+		console.log(rows);
+		if (rows != undefined) {
+			res.json(rows); // id is valid
 		} else {
-			res.send('Error'); // id doesn't exist
+			res.json('Error'); // id doesn't exist
 		}
 	});
 });
@@ -19,7 +20,7 @@ router.get('/:id', function (req, res) {
 router.get('/', function (req, res) {
 	const stmt = db.prepare('SELECT * FROM Product');
 	stmt.get((err, rows) => {
-		res.send(rows);
+		res.json(rows);
 	});
 });
 
