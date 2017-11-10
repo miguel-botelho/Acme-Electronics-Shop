@@ -1,9 +1,5 @@
 package com.cmov.tomislaaaav.acme_electronics_shop;
 
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -19,8 +15,6 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -37,7 +31,7 @@ import static android.content.ContentValues.TAG;
 
 public class RestAPI {
 
-    private final String url_api = "http://338ac1b2.ngrok.io/";
+    private final String url_api = "http://c0dab501.ngrok.io/";
 
     public RestAPI() {
     }

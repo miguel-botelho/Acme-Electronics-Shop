@@ -36,7 +36,7 @@ router.post('/register', function(req, res) {
 			stmt.get([typeCreditCard, numberCreditCard, validityCreditCard, user.idUser], (err, row) => {
 				// check row response
 				console.log(row);
-				res.json('User registred successfully');
+				res.json('User registred successfully ' + user.idUser);
 			});
 		});
 	});

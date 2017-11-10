@@ -16,7 +16,7 @@
         android:id="@+id/add_btn"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_toLeftOf="@id/delete_product"
+        android:layout_toLeftOf="@id/delete_btn"
         android:layout_marginRight="10dp"
         android:background="@color/login_button_background"
         android:textColor="@android:color/white"
@@ -25,14 +25,14 @@
         android:id="@+id/subtract_btn"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_toLeftOf="@+id/delete_product"
+        android:layout_toLeftOf="@+id/delete_btn"
         android:layout_marginTop="50dp"
         android:layout_marginRight="10dp"
         android:background="@color/login_button_background"
         android:textColor="@android:color/white"
         android:text="-" />
     <Button
-        android:id="@+id/delete_product"
+        android:id="@+id/delete_btn"
         android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:layout_alignParentRight="true"
@@ -43,12 +43,12 @@
     </Button>
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="10dp"
         android:layout_marginTop="25dp"
-        android:layout_toLeftOf="@id/delete_product"
+        android:layout_toLeftOf="@id/delete_btn"
         android:clickable="false"
         android:digits="2"
         android:background="@drawable/border"

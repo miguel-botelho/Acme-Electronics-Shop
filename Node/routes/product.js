@@ -8,6 +8,7 @@ router.get('/:id', function (req, res) {
 	const stmt = db.prepare('SELECT * FROM Product WHERE idProduct = ?');
 	stmt.get(req.params.id, (err, rows) => {
 		console.log(rows);
+		stmt.finalize();
 		if (rows != undefined) {
 			res.json(rows); // id is valid
 		} else {
@@ -20,6 +21,7 @@ router.get('/:id', function (req, res) {
 router.get('/', function (req, res) {
 	const stmt = db.prepare('SELECT * FROM Product');
 	stmt.get((err, rows) => {
+		stmt.finalize();
 		res.json(rows);
 	});
 });
