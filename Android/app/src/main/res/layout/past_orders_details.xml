@@ -36,35 +36,34 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:background="#E6E6FA">
             <TextView
-                android:id="@+id/TextView01"
+                android:id="@+id/id_order"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
-                android:textSize="30dip"
+                android:textSize="25dip"
                 android:layout_margin="5dip"
-                android:text="Shopping Cart">
+                android:text="Order: ">
             </TextView>
-            <ListView
-                android:id="@+id/Items"
+            <TextView
+                android:id="@+id/date_order"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ADD8E6"
-                android:clickable="true">
-            </ListView>
-            <LinearLayout android:id="@+id/LinearLayout01"
+                android:textColor="#000000"
+                android:textSize="20dp"
+                android:text="Date: "/>
+            <ListView
+                android:id="@+id/products"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dip">
-                <Button
-                    android:id="@+id/pay"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/login_button_background"
-                    android:layout_gravity="bottom"
-                    android:text="Pay"
-                    android:textColor="@android:color/white">
-                </Button>
-            </LinearLayout>
+                android:layout_height="wrap_content">
+            </ListView>
+            <TextView
+                android:id="@+id/total_price_order"
+                android:layout_width="match_parent"
+                android:gravity="bottom"
+                android:textSize="35dp"
+                android:textColor="#000000"
+                android:text="Price: "
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </android.support.design.widget.CoordinatorLayout>

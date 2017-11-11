@@ -1,6 +1,6 @@
 package com.cmov.tomislaaaav.acme_electronics_shop.Activities;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,16 +12,22 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmov.tomislaaaav.acme_electronics_shop.R;
 import com.cmov.tomislaaaav.acme_electronics_shop.RestAPI;
+import com.cmov.tomislaaaav.acme_electronics_shop.Structures.Order;
 import com.cmov.tomislaaaav.acme_electronics_shop.Structures.Product;
 import com.cmov.tomislaaaav.acme_electronics_shop.Structures.User;
 
@@ -30,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import static android.content.ContentValues.TAG;
 
@@ -37,17 +44,18 @@ import static android.content.ContentValues.TAG;
  * Created by m_bot on 10/11/2017.
  */
 
-public class ProductList extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class PastOrders extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
     User user = new User();
-    ArrayList<Product> products = new ArrayList<Product>();
-    ArrayList<MyListItem> products_names = new ArrayList<MyListItem>();
+    ArrayList<Order> orders = new ArrayList<Order>();
+    ArrayList<PastOrders.MyListItem> orders_uuid = new ArrayList<PastOrders.MyListItem>();
     RestAPI restAPI = new RestAPI();
-    ArrayAdapter<MyListItem> listAdapter;
+    ArrayAdapter<PastOrders.MyListItem> listAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.product_list);
+        setContentView(R.layout.past_orders);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -62,37 +70,40 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
         navigationView.setNavigationItemSelectedListener(this);
 
         Intent i = getIntent();
-        user = (User) i.getSerializableExtra("user");
+        user = (User)i.getSerializableExtra("user");
         TextView name = navigationView.getHeaderView(0).findViewById(R.id.username);
         name.setText(user.getName());
         TextView email = (TextView) navigationView.getHeaderView(0).findViewById(R.id.email);
         email.setText(user.getEmail());
 
-        // Call Rest API to get all products
-        String[] str = new String[1];
-        str[0] = "getAllProducts";
-        new ProductList.productAPI().execute(str);
-        ListView listView = (ListView) findViewById(R.id.products_list);
 
+        // Call Rest API to get user's cart
+        String[] str = new String[1];
+        str[0] = "getPreviousOrders";
+        new pastOrdersAPI().execute(str);
+
+        ListView listView = (ListView) findViewById(R.id.past_orders);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MyListItem item = (MyListItem) adapterView.getItemAtPosition(i);
-                Log.i(TAG, item.getId() + " " + item.getMaker());
+                PastOrders.MyListItem item = (PastOrders.MyListItem) adapterView.getItemAtPosition(i);
+                Log.i(TAG, item.getId());
 
                 Intent intent = new Intent(
-                        ProductList.this,
-                        ProductDetails.class);
+                        PastOrders.this,
+                        OrderDetails.class);
                 intent.putExtra("user", user);
-                for (int k = 0; k < products.size(); k++) {
-                    if (item.getId() == products.get(k).getId())
-                        intent.putExtra("product", products.get(k));
+                for (int k = 0; k < orders.size(); k++) {
+                    Log.i(TAG, orders_uuid.toString());
+                    Log.i(TAG, orders.toString());
+                    if (item.getId().equals(orders.get(k).getId()))
+                        intent.putExtra("order", orders.get(k));
                 }
                 startActivity(intent);
                 finish();
             }
         });
-        listAdapter = new ArrayAdapter<>(this, R.layout.simplerow, products_names);
+        listAdapter = new ArrayAdapter<>(this, R.layout.simplerow, orders_uuid);
 
         listView.setAdapter(listAdapter);
     }
@@ -104,7 +115,7 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Intent intent = new Intent(
-                    ProductList.this,
+                    PastOrders.this,
                     FrontPage.class);
             intent.putExtra("user", user);
             startActivity(intent);
@@ -120,37 +131,59 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
         if (id == R.id.nav_scan) {
             // Handle the camera action
         } else if (id == R.id.nav_products) {
+            Intent intent = new Intent(
+                    PastOrders.this,
+                    ProductList.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_cart) {
             Intent intent = new Intent(
-                    ProductList.this,
+                    PastOrders.this,
                     Cart.class);
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_orders) {
-            Intent intent = new Intent(
-                    ProductList.this,
-                    PastOrders.class);
-            intent.putExtra("user", user);
-            startActivity(intent);
-            finish();
+
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    public class productAPI extends AsyncTask<String, Void, String> {
+    public class MyListItem {
+        private String id;
 
-        public productAPI() {
+        public MyListItem(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return "Order nº: " + id;
+        }
+    }
+
+    public class pastOrdersAPI extends AsyncTask<String, Void, String> {
+
+        public pastOrdersAPI() {
             super();
         }
 
         @Override
         protected String doInBackground(String... strings) {
             switch (strings[0]) {
-                case "getAllProducts":
-                    return restAPI.getAllProducts();
+                case "getPreviousOrders":
+                    return restAPI.retrievePreviousOrdersByID(user.getId());
                 default:
                     return null;
             }
@@ -161,78 +194,60 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
             Log.i(TAG, s);
             if (s.equals("\"Error\"")) {
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            } else {
+            } else if (isJSONValid(s)) {
                 // it's the product from carts
+
                 JSONObject obj = null;
-                JSONArray arr = null;
-                try {
-                    obj = new JSONObject(s);
-                    Product p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), 0);
-                    Log.i(TAG, p.getModel());
-                    products.add(p);
-                } catch (JSONException ex) {
-                    // edited, to include @Arthur's comment
-                    // e.g. in case JSONArray is valid as well...
-                }
-                if (products.size() < 1) {
+                JSONArray arr= null;
                     try {
                         arr = new JSONArray(s);
+                        // parse every order
                         for (int i = 0; i < arr.length(); i++) {
-                            obj = arr.getJSONObject(i);
-                            Product p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), 0);
-                            products.add(p);
+                            Log.i(TAG, arr.getJSONObject(i).getString("day"));
+                            String[] dates = arr.getJSONObject(i).getString("day").split("-");
+
+                            Date date = new Date(Integer.parseInt(dates[0]), Integer.parseInt(dates[1]), Integer.parseInt(dates[2]));
+                            String id = arr.getJSONObject(i).getString("idOrder");
+                            JSONArray products = arr.getJSONObject(i).getJSONArray("products");
+                            ArrayList<Product> temp1= new ArrayList<Product>();
+                            for (int j = 0; j < products.length(); j++) {
+                                obj = products.getJSONObject(j);
+                                Product p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), obj.getInt("quantity"));
+                                Log.i(TAG, obj.getString("maker"));
+                                temp1.add(p);
+                            }
+                            Order o = new Order(id, date, temp1);
+                            orders.add(o);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                for (int j = 0; j < orders.size(); j++) {
+                    MyListItem temp = new MyListItem(orders.get(j).getId());
+                    orders_uuid.add(temp);
                 }
-                for (int j = 0; j < products.size(); j++) {
-                    MyListItem temp = new MyListItem(products.get(j).getId(), products.get(j).getMaker(), products.get(j).getModel());
-                    products_names.add(temp);
-                }
+                Log.i(TAG, orders_uuid.toString());
                 listAdapter.notifyDataSetChanged();
+
+            } else if (s.contains("Orders")) {
+                Toast.makeText(getApplicationContext(), "No orders!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Product action completed!", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
-    public class MyListItem {
-        private int id;
-        private String maker;
-        private String model;
-
-        public MyListItem(int id, String maker, String model) {
-            this.id = id;
-            this.maker = maker;
-            this.model = model;
+    public boolean isJSONValid(String test) {
+        try {
+            new JSONObject(test);
+        } catch (JSONException ex) {
+            // edited, to include @Arthur's comment
+            // e.g. in case JSONArray is valid as well...
+            try {
+                new JSONArray(test);
+            } catch (JSONException ex1) {
+                return false;
+            }
         }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getMaker() {
-            return maker;
-        }
-
-        public void setMaker(String maker) {
-            this.maker = maker;
-        }
-
-        public String getModel() {
-            return model;
-        }
-
-        public void setModel(String model) {
-            this.model = model;
-        }
-
-        @Override
-        public String toString() {
-            return maker + " " + model;
-        }
+        return true;
     }
 }

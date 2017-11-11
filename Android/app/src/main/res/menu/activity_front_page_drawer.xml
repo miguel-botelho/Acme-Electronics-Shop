@@ -17,9 +17,9 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Cart" />
         <item
-            android:id="@+id/nav_pay"
+            android:id="@+id/nav_orders"
             android:icon="@drawable/ic_menu_send"
-            android:title="Pay" />
+            android:title="Past Orders" />
     </group>
 
 </menu>

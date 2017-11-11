@@ -111,9 +111,13 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_cart) {
-
-        } else if (id == R.id.nav_pay) {
-
+        } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(
+                    Cart.this,
+                    PastOrders.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -158,7 +162,12 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
             listItemText.setText(list.get(position).getMaker() + " " + list.get(position).getModel());
 
             final TextView quantity = (TextView) view.findViewById(R.id.quantity);
-            quantity.setText(list.get(position).getQuantity());
+            Log.i(TAG, list.get(position).getQuantity() + "");
+            if (Integer.toString(list.get(position).getQuantity()).length() == 1) {
+                quantity.setText("0" + list.get(position).getQuantity() + "");
+            } else {
+                quantity.setText(list.get(position).getQuantity() + "");
+            }
 
             //Handle buttons and add onClickListeners
             Button subtractBtn = (Button)view.findViewById(R.id.subtract_btn);
@@ -183,19 +192,18 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
                 @Override
                 public void onClick(View v) {
                     //do something
-                    if (Integer.parseInt(quantity.getText().toString()) < 1) {
-                        quantity.setText("0");
+                    if (Integer.parseInt(quantity.getText().toString()) < 2) {
+                        quantity.setText("1");
                     } else {
-                        // change UI
-                        quantity.setText(list.get(position).getQuantity() - 1 + "");
                         // change db
                         String[] str = new String[3];
                         str[0] = "subtractFromCart";
-                        str[1] = list.get(position).getQuantity() - 1 + "";
-                        str[2] = list.get(position).getId() + "";
+                        str[2] = list.get(position).getQuantity() - 1 + "";
+                        str[1] = list.get(position).getId() + "";
                         new Cart.cartAPI().execute(str);
+                        list.get(position).setQuantity(list.get(position).getQuantity() - 1);
+                        notifyDataSetChanged();
                     }
-                    notifyDataSetChanged();
                 }
             });
             addBtn.setOnClickListener(new View.OnClickListener(){
@@ -207,8 +215,8 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
                     // db
                     String[] str = new String[3];
                     str[0] = "addToCart";
-                    str[1] = list.get(position).getQuantity() + 1 + "";
-                    str[2] = list.get(position).getId() + "";
+                    str[2] = list.get(position).getQuantity() + 1 + "";
+                    str[1] = list.get(position).getId() + "";
                     new Cart.cartAPI().execute(str);
 
                     list.get(position).setQuantity(list.get(position).getQuantity() + 1);
@@ -231,9 +239,9 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
             switch (strings[0]) {
                 case "addToCart":
                     return restAPI.addQuantityOfProductToCart(user.getId(), strings[1], strings[2]);
-                case "RemoveFromCart":
+                case "removeFromCart":
                     return restAPI.removeProductFromCart(user.getId(), strings[1]);
-                case "SubtractFromCart":
+                case "subtractFromCart":
                     return restAPI.removeQuantityOfProductFromCart(user.getId(), strings[1], strings[2]);
                 case "getCart":
                     return restAPI.getCartByUser(user.getId());
@@ -244,7 +252,7 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
 
         @Override
         protected void onPostExecute(String s) {
-            Log.i(TAG, s);
+            Log.i(TAG, "TESTE123");
             if (s.equals("\"Error\"")) {
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
             } else if (isJSONValid(s)) {

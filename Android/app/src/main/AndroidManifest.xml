@@ -16,7 +16,17 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
+            android:name=".Activities.PastOrders"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
             android:name=".Activities.ProductDetails"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".Activities.OrderDetails"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

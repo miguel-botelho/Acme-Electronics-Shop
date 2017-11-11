@@ -75,8 +75,13 @@ public class FrontPage extends AppCompatActivity
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
-        } else if (id == R.id.nav_pay) {
-
+        } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(
+                    FrontPage.this,
+                    PastOrders.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -95,6 +95,7 @@ router.get('/remove/:idUser/:idProduct', function (req, res) {
 
 // add quantity to product on cart
 router.get('/add/:idUser/:idProduct/:quantity', function (req, res) {
+	console.log(req.params);
 	var stmt = db.prepare('SELECT * FROM Cart, CartItem WHERE idUser = ? AND Cart.idCart = CartItem.idCart');
 	stmt.get(req.params.idUser, (err, cart) => {
 		if (cart.idUser == req.params.idUser) {
@@ -102,14 +103,17 @@ router.get('/add/:idUser/:idProduct/:quantity', function (req, res) {
 				stmt = db.prepare('UPDATE CartItem SET quantity = ? WHERE idProduct = ? AND idCart = ?');
 				stmt.get([cart.quantity + req.params.quantity, cart.idProduct, cart.idCart], (err, result) => {
 					console.log(result);
+					console.log(err);
 					res.json('Success adding another product of the same type');
 				});
 			} else {
 				console.log(cart);
+				console.log("1");
 				res.json('That product doesn\'t exist in the cart');
 			}
 		} else {
 			console.log(cart);
+			console.log("2");
 			res.json('Error');
 		}
 	});
@@ -117,10 +121,11 @@ router.get('/add/:idUser/:idProduct/:quantity', function (req, res) {
 
 // subtract quantity to product on cart
 router.get('/remove/:idUser/:idProduct/:quantity', function (req, res) {
+	console.log("HELLO");
 	var stmt = db.prepare('SELECT * FROM Cart, CartItem WHERE idUser = ? AND Cart.idCart = CartItem.idCart');
 	stmt.get(req.params.idUser, (err, cart) => {
 		if (cart.idUser == req.params.idUser) {
-			if (cart.idProduct == req.params.idProduct) {
+			if (cart.idProduct == req.params.idProduct) { 
 				if (cart.quantity - req.params.quantity < 0) {
 					stmt = db.prepare('DELETE FROM CartItem WHERE idProduct = ? AND idCart = ?');
 					stmt.get([cart.idProduct, cart.idCart], (err, result) => {

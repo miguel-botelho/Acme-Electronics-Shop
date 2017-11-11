@@ -42,29 +42,15 @@
                 android:textColor="#000000"
                 android:textSize="30dip"
                 android:layout_margin="5dip"
-                android:text="Shopping Cart">
+                android:text="Past Orders">
             </TextView>
             <ListView
-                android:id="@+id/Items"
+                android:id="@+id/past_orders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#ADD8E6"
                 android:clickable="true">
             </ListView>
-            <LinearLayout android:id="@+id/LinearLayout01"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dip">
-                <Button
-                    android:id="@+id/pay"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/login_button_background"
-                    android:layout_gravity="bottom"
-                    android:text="Pay"
-                    android:textColor="@android:color/white">
-                </Button>
-            </LinearLayout>
         </LinearLayout>
 
     </android.support.design.widget.CoordinatorLayout>

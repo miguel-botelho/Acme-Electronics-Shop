@@ -20,7 +20,7 @@ router.get('/:id', function (req, res) {
 // send all products in db
 router.get('/', function (req, res) {
 	const stmt = db.prepare('SELECT * FROM Product');
-	stmt.get((err, rows) => {
+	stmt.all((err, rows) => {
 		stmt.finalize();
 		res.json(rows);
 	});

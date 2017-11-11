@@ -200,7 +200,7 @@ public class RestAPI {
     }
 
     public String removeProductFromCart(String idUser, String idProduct) {
-        String response = createConnection(url_api + "remove/add/" + idUser  + "/" + idProduct, "GET", null, null, null);
+        String response = createConnection(url_api + "cart/remove/" + idUser  + "/" + idProduct, "GET", null, null, null);
         return response;
     }
 

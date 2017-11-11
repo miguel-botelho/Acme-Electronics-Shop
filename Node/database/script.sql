@@ -53,3 +53,11 @@ INSERT INTO User (email, name, password, NIF, address, publicKey) VALUES('jmbote
 INSERT INTO Product (maker, model, price, description) VALUES ('teste', 'teste', 99, 'teste');
 INSERT INTO Cart (idUser) VALUES (1);
 INSERT INTO CartItem (quantity, idProduct, idCart) VALUES (10, 1, 1);
+
+
+INSERT INTO Orders (idOrder, day, idUser) VALUES (3, '2017-11-10', 2);
+INSERT INTO Orders (idOrder, day, idUser) VALUES (4, '2017-11-08', 2);
+INSERT INTO OrderItem (quantity, idProduct, idOrder) VALUES (10, 1, 3);
+INSERT INTO OrderItem (quantity, idProduct, idOrder) VALUES (10, 1, 4);
+INSERT INTO OrderItem (quantity, idProduct, idOrder) VALUES (2, 2, 3);
+INSERT INTO Product (maker, model, price, description) VALUES ('teste2', 'teste2', 949, 'teste2');

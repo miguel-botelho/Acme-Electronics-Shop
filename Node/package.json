@@ -7,6 +7,7 @@
     "debug": "node --debug ./bin/www"
   },
   "dependencies": {
+    "async": "^2.6.0",
     "body-parser": "^1.16.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.1",

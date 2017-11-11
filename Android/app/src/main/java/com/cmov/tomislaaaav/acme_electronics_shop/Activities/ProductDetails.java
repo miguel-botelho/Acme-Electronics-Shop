@@ -120,7 +120,7 @@ public class ProductDetails extends AppCompatActivity implements NavigationView.
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
-        } else if (id == R.id.nav_pay) {
+        } else if (id == R.id.nav_orders) {
 
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

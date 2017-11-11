@@ -1,8 +1,6 @@
 package com.cmov.tomislaaaav.acme_electronics_shop.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -18,16 +16,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmov.tomislaaaav.acme_electronics_shop.R;
-import com.cmov.tomislaaaav.acme_electronics_shop.RestAPI;
+import com.cmov.tomislaaaav.acme_electronics_shop.Structures.Order;
 import com.cmov.tomislaaaav.acme_electronics_shop.Structures.Product;
 import com.cmov.tomislaaaav.acme_electronics_shop.Structures.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -37,17 +32,17 @@ import static android.content.ContentValues.TAG;
  * Created by m_bot on 10/11/2017.
  */
 
-public class ProductList extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class OrderDetails extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     User user = new User();
+    Order order = new Order();
     ArrayList<Product> products = new ArrayList<Product>();
     ArrayList<MyListItem> products_names = new ArrayList<MyListItem>();
-    RestAPI restAPI = new RestAPI();
     ArrayAdapter<MyListItem> listAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.product_list);
+        setContentView(R.layout.past_orders_details);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -68,12 +63,22 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
         TextView email = (TextView) navigationView.getHeaderView(0).findViewById(R.id.email);
         email.setText(user.getEmail());
 
-        // Call Rest API to get all products
-        String[] str = new String[1];
-        str[0] = "getAllProducts";
-        new ProductList.productAPI().execute(str);
-        ListView listView = (ListView) findViewById(R.id.products_list);
+        order = (Order) i.getSerializableExtra("order");
 
+        TextView idOrder = (TextView) findViewById(R.id.id_order);
+        idOrder.setText("Order: " + order.getId());
+        TextView dateOrder = (TextView) findViewById(R.id.date_order);
+        dateOrder.setText("Date: " + order.getDate().toString());
+        TextView price = (TextView) findViewById(R.id.total_price_order);
+        price.setText("Total Price: " + order.getTotalPrice());
+
+        for (int j = 0; j < order.getProducts().size(); j++) {
+            MyListItem myListItem = new MyListItem(order.getProducts().get(j).getId(), order.getProducts().get(j).getMaker(), order.getProducts().get(j).getModel(), order.getProducts().get(j).getQuantity());
+            products.add(order.getProducts().get(j));
+            products_names.add(myListItem);
+        }
+
+        ListView listView = (ListView) findViewById(R.id.products);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -81,12 +86,14 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
                 Log.i(TAG, item.getId() + " " + item.getMaker());
 
                 Intent intent = new Intent(
-                        ProductList.this,
+                        OrderDetails.this,
                         ProductDetails.class);
                 intent.putExtra("user", user);
-                for (int k = 0; k < products.size(); k++) {
-                    if (item.getId() == products.get(k).getId())
-                        intent.putExtra("product", products.get(k));
+                for (int j = 0; j < products_names.size(); j++) {
+                    for (int k = 0; k < products.size(); k++) {
+                        if (products_names.get(j).getId() == products.get(k).getId())
+                            intent.putExtra("product", products.get(k));
+                    }
                 }
                 startActivity(intent);
                 finish();
@@ -104,8 +111,8 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Intent intent = new Intent(
-                    ProductList.this,
-                    FrontPage.class);
+                    OrderDetails.this,
+                    PastOrders.class);
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
@@ -120,16 +127,22 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
         if (id == R.id.nav_scan) {
             // Handle the camera action
         } else if (id == R.id.nav_products) {
+            Intent intent = new Intent(
+                    OrderDetails.this,
+                    ProductList.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_cart) {
             Intent intent = new Intent(
-                    ProductList.this,
+                    OrderDetails.this,
                     Cart.class);
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_orders) {
             Intent intent = new Intent(
-                    ProductList.this,
+                    OrderDetails.this,
                     PastOrders.class);
             intent.putExtra("user", user);
             startActivity(intent);
@@ -140,70 +153,17 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
         return true;
     }
 
-    public class productAPI extends AsyncTask<String, Void, String> {
-
-        public productAPI() {
-            super();
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            switch (strings[0]) {
-                case "getAllProducts":
-                    return restAPI.getAllProducts();
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            Log.i(TAG, s);
-            if (s.equals("\"Error\"")) {
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            } else {
-                // it's the product from carts
-                JSONObject obj = null;
-                JSONArray arr = null;
-                try {
-                    obj = new JSONObject(s);
-                    Product p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), 0);
-                    Log.i(TAG, p.getModel());
-                    products.add(p);
-                } catch (JSONException ex) {
-                    // edited, to include @Arthur's comment
-                    // e.g. in case JSONArray is valid as well...
-                }
-                if (products.size() < 1) {
-                    try {
-                        arr = new JSONArray(s);
-                        for (int i = 0; i < arr.length(); i++) {
-                            obj = arr.getJSONObject(i);
-                            Product p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), 0);
-                            products.add(p);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-                for (int j = 0; j < products.size(); j++) {
-                    MyListItem temp = new MyListItem(products.get(j).getId(), products.get(j).getMaker(), products.get(j).getModel());
-                    products_names.add(temp);
-                }
-                listAdapter.notifyDataSetChanged();
-            }
-        }
-    }
-
     public class MyListItem {
         private int id;
         private String maker;
         private String model;
+        private int quantity;
 
-        public MyListItem(int id, String maker, String model) {
+        public MyListItem(int id, String maker, String model, int quantity) {
             this.id = id;
             this.maker = maker;
             this.model = model;
+            this.quantity = quantity;
         }
 
         public int getId() {
@@ -230,9 +190,18 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
             this.model = model;
         }
 
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
+        }
+
         @Override
         public String toString() {
-            return maker + " " + model;
+            return "Name: " + maker + " " + model + "  " + "qty: " + quantity;
         }
     }
 }
+
