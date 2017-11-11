@@ -31,7 +31,7 @@ import static android.content.ContentValues.TAG;
 
 public class RestAPI {
 
-    private final String url_api = "http://c0dab501.ngrok.io/";
+    private final String url_api = "http://4ccb394e.ngrok.io/";
 
     public RestAPI() {
     }
@@ -221,6 +221,11 @@ public class RestAPI {
 
     public String retrievePrinterByUUID(String uuid) {
         String response = createConnection(url_api + "order/printer/" + uuid, "GET", null, null, null);
+        return response;
+    }
+
+    public String payOrder(JSONObject us) {
+        String response = createConnection(url_api+"order/", "POST", null, us.toString(), null);
         return response;
     }
 

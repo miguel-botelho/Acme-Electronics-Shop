@@ -146,6 +146,13 @@ public class PastOrders extends AppCompatActivity implements NavigationView.OnNa
             finish();
         } else if (id == R.id.nav_orders) {
 
+        } else if(id == R.id.nav_front_page) {
+            Intent intent = new Intent(
+                    PastOrders.this,
+                    FrontPage.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -184,6 +191,8 @@ public class PastOrders extends AppCompatActivity implements NavigationView.OnNa
             switch (strings[0]) {
                 case "getPreviousOrders":
                     return restAPI.retrievePreviousOrdersByID(user.getId());
+                case "getProductById":
+                    return restAPI.getProductByID(strings[1]);
                 default:
                     return null;
             }
@@ -196,8 +205,6 @@ public class PastOrders extends AppCompatActivity implements NavigationView.OnNa
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
             } else if (isJSONValid(s)) {
                 // it's the product from carts
-
-                JSONObject obj = null;
                 JSONArray arr= null;
                     try {
                         arr = new JSONArray(s);
@@ -205,7 +212,7 @@ public class PastOrders extends AppCompatActivity implements NavigationView.OnNa
                         for (int i = 0; i < arr.length(); i++) {
                             Log.i(TAG, arr.getJSONObject(i).getString("day"));
                             String[] dates = arr.getJSONObject(i).getString("day").split("-");
-
+                            JSONObject obj = null;
                             Date date = new Date(Integer.parseInt(dates[0]), Integer.parseInt(dates[1]), Integer.parseInt(dates[2]));
                             String id = arr.getJSONObject(i).getString("idOrder");
                             JSONArray products = arr.getJSONObject(i).getJSONArray("products");

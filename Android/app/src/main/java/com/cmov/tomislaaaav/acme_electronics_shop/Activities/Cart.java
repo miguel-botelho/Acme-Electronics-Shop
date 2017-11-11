@@ -32,7 +32,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.PrivateKey;
+import java.security.Signature;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -75,6 +79,25 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
         adapter = new CartItemAdapter(cart, this);
         listView.setAdapter(adapter);
 
+        Button pay = (Button) findViewById(R.id.pay);
+        pay.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                // db
+                String[] str = new String[2];
+                str[0] = "payOrder";
+                String raw = "123456789";
+                /*
+                Signature instance = Signature.getInstance("SHA1withRSA");
+                instance.initSign(user.getPrivateKey());
+                instance.update(rawString.getBytes());
+                signed = instance.sign();
+                */
+                str[1] = "";
+                new cartAPI().execute(str);
+            }
+        });
+
         // Call Rest API to get user's cart
         String[] str = new String[1];
         str[0] = "getCart";
@@ -115,6 +138,13 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
             Intent intent = new Intent(
                     Cart.this,
                     PastOrders.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
+        } else if(id == R.id.nav_front_page) {
+            Intent intent = new Intent(
+                    Cart.this,
+                    FrontPage.class);
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
@@ -245,6 +275,12 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
                     return restAPI.removeQuantityOfProductFromCart(user.getId(), strings[1], strings[2]);
                 case "getCart":
                     return restAPI.getCartByUser(user.getId());
+                case "payOrder":
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put("idUser", user.getId());
+
+                    JSONObject us = new JSONObject(map);
+                    return restAPI.payOrder(us);
                 default:
                     return null;
             }
@@ -255,6 +291,16 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
             Log.i(TAG, "TESTE123");
             if (s.equals("\"Error\"")) {
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            } else if (s.contains("-")) {
+                Toast.makeText(getApplicationContext(), "Your order " + s + " has been placed!", Toast.LENGTH_SHORT).show();
+
+                // Launch login activity
+                Intent intent = new Intent(
+                        Cart.this,
+                        PastOrders.class);
+                intent.putExtra("user", user);
+                startActivity(intent);
+                finish();
             } else if (isJSONValid(s)) {
                 // it's the product from carts
                 JSONObject obj = null;

@@ -134,6 +134,13 @@ public class ProductList extends AppCompatActivity implements NavigationView.OnN
             intent.putExtra("user", user);
             startActivity(intent);
             finish();
+        } else if(id == R.id.nav_front_page) {
+            Intent intent = new Intent(
+                    ProductList.this,
+                    FrontPage.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

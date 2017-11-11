@@ -1,22 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const async = require('async');
+const uuidv4 = require('uuid/v4');
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('database/database.db');
 
 // receive payment order and verify the signature and later emit a token
 router.post('/', function (req, res) {
-	const email = req.params.email;
-	const encrypted = req.params.encrypted; // hashed with sha1. encrypted with private key. now i have to verify it with public key
-	const stmt = db.prepare('SELECT * FROM User WHERE email = ?');
-	stmt.get(email, (err, user) => {
-		if (user.email == email) {
-			// carry on
-			
-		} else {
-			console.log(user);
-			res.send('Error');
-		}
+	const idUser = req.body.idUser;
+	// const encrypted = req.params.encrypted; // hashed with sha1. encrypted with private key. now i have to verify it with public key
+	// carry on
+	var stmt = db.prepare('SELECT * FROM Cart, CartItem, Product WHERE idUser = ? AND Cart.idCart = CartItem.idCart AND Product.idProduct = CartItem.idProduct');
+	stmt.all(idUser, (err, cart) => {
+		console.log(cart);
+		// criar order
+		var uuid = uuidv4();
+		stmt = db.prepare('INSERT INTO Orders (idOrder, day, idUser) VALUES (?, date(\'now\'), ?)');
+		stmt.get([uuid, idUser], (err, t) => {
+			// criar order items
+			async.each(cart, (c, callback) => {
+				stmt = db.prepare('INSERT INTO OrderItem (quantity, idProduct, idOrder) VALUES (?, ?, ?)');
+				stmt.get([c.quantity, c.idProduct, uuid], (err, t1) => {
+					callback();
+				});
+			}, (err) => {
+				if (err)
+					console.log(err);
+				else res.json(uuid);
+			});
+		});
 	});
 });
 
@@ -48,12 +60,12 @@ router.get('/printer/:uuid', function (req, res) {
 });
 
 // retrieve all orders of a given customer
-router.get('/previous/:idUser', function (req, res ) {
+router.get('/previous/:idUser', function (req, res) {
 	var retorno = [];
 	const stmt = db.prepare('SELECT * FROM Orders, OrderItem, Product WHERE idUser = ? AND Orders.idOrder = orderItem.idOrder AND Product.idProduct = orderItem.idProduct');
 	stmt.all(req.params.idUser, (err, orders) => {
 		console.log(orders);
-		orders.sort(function(a, b) {
+		orders.sort(function (a, b) {
 			return a.idOrder > b.idOrder;
 		});
 		var temp = '';
@@ -61,12 +73,12 @@ router.get('/previous/:idUser', function (req, res ) {
 		for (var i = 0; i < orders.length; i++) {
 			if (temp == orders[i].idOrder) {
 				retorno[j].products.push({
-					idProduct:orders[i].idProduct,
-					quantity:orders[i].quantity,
-					maker:orders[i].maker,
-					model:orders[i].model,
-					price:orders[i].price,
-					description:orders[i].description,
+					idProduct: orders[i].idProduct,
+					quantity: orders[i].quantity,
+					maker: orders[i].maker,
+					model: orders[i].model,
+					price: orders[i].price,
+					description: orders[i].description,
 				});
 			} else {
 				j = j + 1;
@@ -77,12 +89,12 @@ router.get('/previous/:idUser', function (req, res ) {
 					products: [],
 				});
 				retorno[j].products.push({
-					idProduct:orders[i].idProduct,
-					quantity:orders[i].quantity,
-					maker:orders[i].maker,
-					model:orders[i].model,
-					price:orders[i].price,
-					description:orders[i].description,
+					idProduct: orders[i].idProduct,
+					quantity: orders[i].quantity,
+					maker: orders[i].maker,
+					model: orders[i].model,
+					price: orders[i].price,
+					description: orders[i].description,
 				});
 			}
 		}

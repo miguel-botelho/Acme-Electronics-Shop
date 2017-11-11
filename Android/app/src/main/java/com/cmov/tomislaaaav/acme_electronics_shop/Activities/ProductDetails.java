@@ -121,7 +121,20 @@ public class ProductDetails extends AppCompatActivity implements NavigationView.
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(
+                    ProductDetails.this,
+                    PastOrders.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
 
+        } else if(id == R.id.nav_front_page) {
+            Intent intent = new Intent(
+                    ProductDetails.this,
+                    FrontPage.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -139,6 +152,8 @@ public class ProductDetails extends AppCompatActivity implements NavigationView.
             switch (strings[0]) {
                 case "addProductToCart":
                     return restAPI.addProductToCart(user.getId(), product.getId() + "");
+                case "getProductById":
+                    return restAPI.getProductByID(strings[1]);
                 default:
                     return null;
             }
@@ -149,6 +164,24 @@ public class ProductDetails extends AppCompatActivity implements NavigationView.
             Log.i(TAG, s);
             if (s.equals("\"Error\"")) {
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            } else if (isJSONValid(s)) {
+                JSONObject obj = null;
+                Product p = null;
+                try {
+                    obj = new JSONObject(s);
+                    p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), 0);
+                    Log.i(TAG, p.getModel());
+                    Intent intent = new Intent(
+                            ProductDetails.this,
+                            ProductDetails.class);
+                    intent.putExtra("user", user);
+                    intent.putExtra("product", p);
+                    startActivity(intent);
+                    finish();
+                } catch (JSONException ex) {
+                    // edited, to include @Arthur's comment
+                    // e.g. in case JSONArray is valid as well...
+                }
             } else {
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
 
@@ -160,6 +193,21 @@ public class ProductDetails extends AppCompatActivity implements NavigationView.
                 startActivity(intent);
                 finish();
             }
+        }
+
+        public boolean isJSONValid(String test) {
+            try {
+                new JSONObject(test);
+            } catch (JSONException ex) {
+                // edited, to include @Arthur's comment
+                // e.g. in case JSONArray is valid as well...
+                try {
+                    new JSONArray(test);
+                } catch (JSONException ex1) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

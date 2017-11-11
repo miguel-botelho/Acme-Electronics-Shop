@@ -7,7 +7,7 @@ var db = new sqlite3.Database('database/database.db');
 router.get('/:idUser', function (req, res) {
 	const stmt = db.prepare('SELECT * FROM Cart, CartItem, Product WHERE idUser = ? AND Cart.idCart = CartItem.idCart AND Product.idProduct = CartItem.idProduct');
 	console.log(req.params.idUser);
-	stmt.get(req.params.idUser, (err, rows) => {
+	stmt.all(req.params.idUser, (err, rows) => {
 		if (rows != undefined && rows != null) {
 			res.json(rows); // id is valid
 		} else {
@@ -95,58 +95,49 @@ router.get('/remove/:idUser/:idProduct', function (req, res) {
 
 // add quantity to product on cart
 router.get('/add/:idUser/:idProduct/:quantity', function (req, res) {
-	console.log(req.params);
-	var stmt = db.prepare('SELECT * FROM Cart, CartItem WHERE idUser = ? AND Cart.idCart = CartItem.idCart');
+	var stmt = db.prepare('SELECT * FROM Cart WHERE idUser = ?');
 	stmt.get(req.params.idUser, (err, cart) => {
-		if (cart.idUser == req.params.idUser) {
-			if (cart.idProduct == req.params.idProduct) {
-				stmt = db.prepare('UPDATE CartItem SET quantity = ? WHERE idProduct = ? AND idCart = ?');
-				stmt.get([cart.quantity + req.params.quantity, cart.idProduct, cart.idCart], (err, result) => {
-					console.log(result);
-					console.log(err);
-					res.json('Success adding another product of the same type');
-				});
-			} else {
-				console.log(cart);
-				console.log("1");
-				res.json('That product doesn\'t exist in the cart');
-			}
-		} else {
-			console.log(cart);
-			console.log("2");
-			res.json('Error');
-		}
+		console.log(err);
+		stmt = db.prepare('SELECT * FROM CartItem WHERE idCart = ? AND idProduct = ?');
+		stmt.get([cart.idCart, req.params.idProduct], (err, cartItem) => {
+			console.log(err);
+				if (cartItem.idProduct == req.params.idProduct) {
+					stmt = db.prepare('UPDATE CartItem SET quantity = ? WHERE idProduct = ? AND idCart = ?');
+					stmt.get([cartItem.quantity + 1, cartItem.idProduct, cart.idCart], (err, result) => {
+						console.log(result);
+						console.log(err);
+						res.json('Success adding another product of the same type');
+					});
+				} else {
+					console.log(cart);
+					console.log("1");
+					res.json('That product doesn\'t exist in the cart');
+				}
+		});
 	});
 });
 
 // subtract quantity to product on cart
 router.get('/remove/:idUser/:idProduct/:quantity', function (req, res) {
-	console.log("HELLO");
-	var stmt = db.prepare('SELECT * FROM Cart, CartItem WHERE idUser = ? AND Cart.idCart = CartItem.idCart');
+	var stmt = db.prepare('SELECT * FROM Cart WHERE idUser = ?');
 	stmt.get(req.params.idUser, (err, cart) => {
-		if (cart.idUser == req.params.idUser) {
-			if (cart.idProduct == req.params.idProduct) { 
-				if (cart.quantity - req.params.quantity < 0) {
-					stmt = db.prepare('DELETE FROM CartItem WHERE idProduct = ? AND idCart = ?');
-					stmt.get([cart.idProduct, cart.idCart], (err, result) => {
-						console.log(result);
-						res.json('Success removing product');
-					});
-				} else {
+		console.log(err);
+		stmt = db.prepare('SELECT * FROM CartItem WHERE idCart = ? AND idProduct = ?');
+		stmt.get([cart.idCart, req.params.idProduct], (err, cartItem) => {
+			console.log(err);
+				if (cartItem.idProduct == req.params.idProduct) {
 					stmt = db.prepare('UPDATE CartItem SET quantity = ? WHERE idProduct = ? AND idCart = ?');
-					stmt.get([cart.quantity - req.params.quantity, cart.idProduct, cart.idCart], (err, result) => {
+					stmt.get([cartItem.quantity - 1, cartItem.idProduct, cart.idCart], (err, result) => {
 						console.log(result);
+						console.log(err);
 						res.json('Success adding another product of the same type');
 					});
+				} else {
+					console.log(cart);
+					console.log("1");
+					res.json('That product doesn\'t exist in the cart');
 				}
-			} else {
-				console.log(cart);
-				res.json('That product doesn\'t exist in the cart');
-			}
-		} else {
-			console.log(cart);
-			res.json('Error');
-		}
+		});
 	});
 });
 
