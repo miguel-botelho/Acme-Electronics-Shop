@@ -48,14 +48,49 @@ router.get('/:uuid', function (req, res) {
 
 // retrieve order information and client information
 router.get('/printer/:uuid', function (req, res) {
-	const stmt = db.prepare('SELECT * FROM Orders, OrderItem, Product, User WHERE Orders.idOrder = OrderItem.idOrder AND User.idUser = Orders.idUser AND Product.idProduct = OrderItem.idProduct AND Orders.idOrder = ?');
-	stmt.get(req.params.uuid, (err, info) => {
-		if (info.idOrder == req.params.uuid) {
-			res.send(info);
-		} else {
-			console.log(info);
-			res.send('Error');
-		}
+	var retorno = {
+		day: '',
+		user: {
+			idUser: 0,
+			email: '',
+			name: '',
+			nif: '',
+			address: ''
+		},
+		items: [
+		],
+	};
+	var stmt = db.prepare('SELECT * FROM Orders WHERE idOrder = ?');
+	stmt.get(req.params.uuid, (err, order) => {
+		retorno.day = order.day;
+		stmt = db.prepare('SELECT * FROM User WHERE idUser = ?');
+		stmt.get(order.idUser, (err, user) => {
+			retorno.user.idUser = order.idUser;
+			retorno.user.address = user.address;
+			retorno.user.email = user.email;
+			retorno.user.name = user.name;
+			retorno.user.nif = user.nif;
+			stmt = db.prepare('SELECT * FROM OrderItem WHERE idOrder = ?');
+			stmt.all(req.params.uuid, (err, info) => {
+				async.each(info, (i, callback) => {
+					var stmt1 = db.prepare('SELECT * FROM Product WHERE idProduct = ?');
+					stmt.get(i.idProduct, (err, product) => {
+						retorno.items.push({
+							idProduct: i.idProduct,
+							maker: product.maker,
+							model: product.model,
+							price: product.price,
+							description: product.description,
+							quantity: i.quantity,
+						});
+						callback();
+					});
+				}, (err) => {
+					console.log(retorno);
+					res.json(retorno);
+				});
+			});
+		});
 	});
 });
 
