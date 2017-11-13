@@ -288,7 +288,6 @@ public class Cart extends AppCompatActivity implements NavigationView.OnNavigati
 
         @Override
         protected void onPostExecute(String s) {
-            Log.i(TAG, "TESTE123");
             if (s.equals("\"Error\"")) {
                 Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
             } else if (s.contains("-")) {

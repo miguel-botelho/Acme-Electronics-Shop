@@ -2,7 +2,6 @@ package com.cmov.tomislaaaav.acmeelectronicsshopprinter;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,13 +9,11 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
@@ -25,8 +22,6 @@ import static android.content.ContentValues.TAG;
  * status bar and navigation/system bar) with user interaction.
  */
 public class Printer extends AppCompatActivity {
-
-    RestAPI restAPI = new RestAPI();
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -83,6 +78,13 @@ public class Printer extends AppCompatActivity {
             hide();
         }
     };
+
+
+    ArrayList<Product> products = new ArrayList<Product>();
+    ArrayList<MyListItem> products_names = new ArrayList<MyListItem>();
+    ArrayAdapter<MyListItem> listAdapter;
+
+
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -106,7 +108,7 @@ public class Printer extends AppCompatActivity {
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = findViewById(R.id.fullscreen_content);
+        mContentView = findViewById(R.id.fullscreen_layout);
 
 
         // Set up the user interaction to manually show or hide the system UI.
@@ -120,10 +122,51 @@ public class Printer extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.scan).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.scan).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(
+                        Printer.this,
+                        XZingActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
-        IntentIntegrator integrator = new IntentIntegrator(Printer.this);
-        integrator.initiateScan();
+        Intent i = getIntent();
+        Order o = (Order)i.getSerializableExtra("order");
+        User u = (User)i.getSerializableExtra("user");
+
+        ListView listView = (ListView) findViewById(R.id.products);
+
+        TextView uuid = findViewById(R.id.uuid);
+        uuid.setText("Order ID: " + o.getId());
+        TextView day = findViewById(R.id.day);
+        day.setText("Order Date: " + o.getDate().getDay() + "-" + o.getDate().getMonth() + "-" + o.getDate().getYear());
+        TextView name = findViewById(R.id.name);
+        name.setText("Client Name: " + u.getName());
+        TextView address = findViewById(R.id.address);
+        address.setText("Client Address: " + u.getAddress());
+        TextView email = findViewById(R.id.email);
+        email.setText("Client Email: " + u.getEmail());
+        TextView nif = findViewById(R.id.nif);
+        nif.setText("Client NIF: " + u.getNIF());
+
+        Log.i(TAG, "OLA: " + o.getProducts().size());
+
+        for (int j = 0; j < o.getProducts().size(); j++) {
+            MyListItem myListItem = new MyListItem(o.getProducts().get(j).getId(), o.getProducts().get(j).getMaker(), o.getProducts().get(j).getModel(), o.getProducts().get(j).getQuantity());
+            products.add(o.getProducts().get(j));
+            products_names.add(myListItem);
+        }
+
+        Log.i(TAG, "ADEUS: " + products.size());
+
+
+        listAdapter = new ArrayAdapter<>(this, R.layout.simplerow, products_names);
+
+        listView.setAdapter(listAdapter);
     }
 
     @Override
@@ -179,62 +222,54 @@ public class Printer extends AppCompatActivity {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
-            String re = scanResult.getContents();
-            Log.i("code", re);
-            String[] strs = new String[2];
-            strs[0] = "getOrderById";
-            strs[1] = re;
-            new printerAPI().execute(strs);
+    public class MyListItem {
+        private int id;
+        private String maker;
+        private String model;
+        private int quantity;
+
+        public MyListItem(int id, String maker, String model, int quantity) {
+            this.id = id;
+            this.maker = maker;
+            this.model = model;
+            this.quantity = quantity;
         }
-        // else continue with any other code you need in the method
-    }
 
-    public class printerAPI extends AsyncTask<String, Void, String> {
+        public int getId() {
+            return id;
+        }
 
-        public printerAPI() {
-            super();
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getMaker() {
+            return maker;
+        }
+
+        public void setMaker(String maker) {
+            this.maker = maker;
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public void setModel(String model) {
+            this.model = model;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
         }
 
         @Override
-        protected String doInBackground(String... strings) {
-            switch (strings[0]) {
-                case "getOrderById":
-                    return restAPI.retrievePrinterByUUID(strings[1]);
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            Log.i(TAG, s);
-            if (s.equals("\"Error\"")) {
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            } else {
-                /*
-                // it's the product from carts
-                JSONObject obj = null;
-                Product p = null;
-                try {
-                    obj = new JSONObject(s);
-                    p = new Product(obj.getInt("idProduct"), obj.getString("maker"), obj.getString("model"), obj.getInt("price"), obj.getString("description"), 0);
-                    Log.i(TAG, p.getModel());
-                    Intent intent = new Intent(
-                            FrontPage.this,
-                            ProductDetails.class);
-                    intent.putExtra("user", user);
-                    intent.putExtra("product", p);
-                    startActivity(intent);
-                    finish();
-                } catch (JSONException ex) {
-                    // edited, to include @Arthur's comment
-                    // e.g. in case JSONArray is valid as well...
-                }
-                */
-            }
+        public String toString() {
+            return "Name: " + maker + " " + model + "  " + "qty: " + quantity;
         }
     }
 }

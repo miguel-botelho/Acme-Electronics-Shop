@@ -85,7 +85,7 @@ public class OrderDetails extends AppCompatActivity implements NavigationView.On
         TextView idOrder = (TextView) findViewById(R.id.id_order);
         idOrder.setText("Order: " + order.getId());
         TextView dateOrder = (TextView) findViewById(R.id.date_order);
-        dateOrder.setText("Date: " + order.getDate().toString());
+        dateOrder.setText("Date: " + order.getDate().getDay() + "-" + order.getDate().getMonth() + "-" + order.getDate().getYear());
         TextView price = (TextView) findViewById(R.id.total_price_order);
         price.setText("Total Price: " + order.getTotalPrice());
         ImageView qrCode = (ImageView) findViewById(R.id.qr_code);

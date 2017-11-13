@@ -50,14 +50,12 @@ router.get('/:uuid', function (req, res) {
 router.get('/printer/:uuid', function (req, res) {
 	var retorno = {
 		day: '',
-		user: {
-			idUser: 0,
-			email: '',
-			name: '',
-			nif: '',
-			address: ''
-		},
-		items: [
+		idUser: 0,
+		email: '',
+		name: '',
+		nif: '',
+		address: '',
+		products: [
 		],
 	};
 	var stmt = db.prepare('SELECT * FROM Orders WHERE idOrder = ?');
@@ -65,17 +63,18 @@ router.get('/printer/:uuid', function (req, res) {
 		retorno.day = order.day;
 		stmt = db.prepare('SELECT * FROM User WHERE idUser = ?');
 		stmt.get(order.idUser, (err, user) => {
-			retorno.user.idUser = order.idUser;
-			retorno.user.address = user.address;
-			retorno.user.email = user.email;
-			retorno.user.name = user.name;
-			retorno.user.nif = user.nif;
+			retorno.idUser = order.idUser;
+			retorno.address = user.address;
+			retorno.email = user.email;
+			retorno.name = user.name;
+			retorno.nif = user.NIF;
 			stmt = db.prepare('SELECT * FROM OrderItem WHERE idOrder = ?');
 			stmt.all(req.params.uuid, (err, info) => {
 				async.each(info, (i, callback) => {
 					var stmt1 = db.prepare('SELECT * FROM Product WHERE idProduct = ?');
-					stmt.get(i.idProduct, (err, product) => {
-						retorno.items.push({
+					stmt1.get(i.idProduct, (err, product) => {
+						console.log(product);
+						retorno.products.push({
 							idProduct: i.idProduct,
 							maker: product.maker,
 							model: product.model,
