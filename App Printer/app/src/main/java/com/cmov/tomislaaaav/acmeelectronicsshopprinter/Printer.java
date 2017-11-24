@@ -137,7 +137,6 @@ public class Printer extends AppCompatActivity {
         Intent i = getIntent();
         Order o = (Order)i.getSerializableExtra("order");
         User u = (User)i.getSerializableExtra("user");
-
         ListView listView = (ListView) findViewById(R.id.products);
 
         TextView uuid = findViewById(R.id.uuid);
@@ -153,19 +152,13 @@ public class Printer extends AppCompatActivity {
         TextView nif = findViewById(R.id.nif);
         nif.setText("Client NIF: " + u.getNIF());
 
-        Log.i(TAG, "OLA: " + o.getProducts().size());
-
         for (int j = 0; j < o.getProducts().size(); j++) {
             MyListItem myListItem = new MyListItem(o.getProducts().get(j).getId(), o.getProducts().get(j).getMaker(), o.getProducts().get(j).getModel(), o.getProducts().get(j).getQuantity());
             products.add(o.getProducts().get(j));
             products_names.add(myListItem);
         }
 
-        Log.i(TAG, "ADEUS: " + products.size());
-
-
         listAdapter = new ArrayAdapter<>(this, R.layout.simplerow, products_names);
-
         listView.setAdapter(listAdapter);
     }
 

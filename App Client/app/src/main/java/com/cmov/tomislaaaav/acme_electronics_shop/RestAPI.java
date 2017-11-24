@@ -31,7 +31,7 @@ import static android.content.ContentValues.TAG;
 
 public class RestAPI {
 
-    private final String url_api = "http://b6ecd45a.ngrok.io/";
+    private final String url_api = "http://b74b4b1d.ngrok.io/";
 
     public RestAPI() {
     }

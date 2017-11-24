@@ -17,10 +17,12 @@ router.post('/', function (req, res) {
 		var uuid = uuidv4();
 		stmt = db.prepare('INSERT INTO Orders (idOrder, day, idUser) VALUES (?, date(\'now\'), ?)');
 		stmt.get([uuid, idUser], (err, t) => {
+			console.log("order: " + err);
 			// criar order items
 			async.each(cart, (c, callback) => {
 				stmt = db.prepare('INSERT INTO OrderItem (quantity, idProduct, idOrder) VALUES (?, ?, ?)');
 				stmt.get([c.quantity, c.idProduct, uuid], (err, t1) => {
+					console.log("async: " + err);
 					callback();
 				});
 			}, (err) => {

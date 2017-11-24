@@ -37,7 +37,7 @@ public class XZingActivity extends AppCompatActivity{
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
+        if (scanResult.getContents() != null) {
             re = scanResult.getContents();
             Log.i("code", re);
             String[] strs = new String[2];
